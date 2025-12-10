@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { PostgrestError } from '@supabase/supabase-js';
 
-export class SupabseCustomError {
-  static execption(error: PostgrestError): never {
+export class SupabaseCustomError {
+  static exception(error: PostgrestError): never {
     if (!error) {
       throw new InternalServerErrorException(
         'Unresolve Error Ocurred Please try again',
