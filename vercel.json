@@ -1,10 +1,24 @@
 {
   "version": 2,
-  "builds": [{ "src": "src/main.ts", "use": "@vercel/node" }],
-  "rewrites": [
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "public": false,
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "src/main.ts"
+      "src": "dist/main.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": "dist/**"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/main.js"
     }
   ],
   "headers": [
@@ -19,7 +33,7 @@
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization"
         }
       ]
     }

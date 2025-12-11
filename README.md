@@ -144,13 +144,20 @@ Para las operaciones con sitios, utilicé DTOs con validadores de `class-validat
 
 ## Despliegue
 
-- Vercel
+Este proyecto está configurado para hacer deploy en **Vercel**.
+
+**Pasos realizados:**
+1. Conecté el repositorio GitHub a Vercel
+2. Agregue variables de entorno en Vercel
+3. Hice push a mi rama principal (master)
+4. Vercel automáticamente compilará y deployará
 
 ## Resources
 
 - NestJs [NestJs Documentación](https://docs.nestjs.com/)
 - AWS SDK [AWS SDK JAVACRIPT](https://docs.aws.amazon.com/sdk-for-javascript/)
 - Supabase [Supabase Documentación](https://supabase.com/docs/guides/database/overview)
+- Vercel [Vercel Documentación](https://vercel.com/docs)
 
 ## License
 
