@@ -20,7 +20,7 @@ export class User {
   password: string;
 
   @Column({ nullable: true })
-  full_name: string;
+  nickname: string;
 
   @OneToMany(() => Site, (site) => site.user)
   sites: Site[];
