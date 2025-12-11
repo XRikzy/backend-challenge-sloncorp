@@ -16,7 +16,7 @@ import { logger } from './utils/logger';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         const config = getSupaDatabaseConfig(configService);
-        logger.log(`🔗 Connecting to the mainly supabase DB`);
+        logger.log(`🔗 Connecting to the main supabase DB`);
         return config;
       },
       inject: [ConfigService],

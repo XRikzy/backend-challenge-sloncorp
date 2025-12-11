@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import {
   S3Client,
   PutObjectCommand,
-  DeleteBucketCommand,
+  DeleteObjectCommand,
 } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import { logger as defaultLogger } from '@/utils/logger';
@@ -96,13 +96,13 @@ export class S3Service {
       const s3Key = urlParts[1];
       const params = {
         Bucket: this.bucketName,
-        key: s3Key,
+        Key: s3Key,
       };
-      const command = new DeleteBucketCommand(params);
+      const command = new DeleteObjectCommand(params);
       await this.s3.send(command);
-      this.logger.log(`Bucket ${this.bucketName} deleted successfully`);
+      this.logger.log(`Image ${s3Key} deleted successfully`);
     } catch (error) {
-      this.logger.error(`Error deleting bucket ${this.bucketName} ${error}`);
+      this.logger.error(`Error deleting image from S3: ${error}`);
     }
   }
   private validateFile(file: Express.Multer.File): void {

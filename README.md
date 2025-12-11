@@ -57,28 +57,90 @@ $~ cd backend-challenge-sloncorp
 $~ npm i
 ```
 
+3. Configurar variables de entorno
+
+Crear archivo `.env` con las variables necesarias:
+
+```
+PORT=3000
+DATABASE_URL=urlfromsupabase
+AWS_ACCESS_KEY_ID=access_key
+AWS_SECRET_ACCESS_KEY=secret_key
+AWS_S3_BUCKET=bucket_name
+AWS_S3_REGION=us-east-1
+AWS_S3_SITES_FOLDER=sites/
+JWT_SECRET=jwt_secret
+JWT_EXPIRATION=86400
+```
+Se proporcionará los env necearios para correr el sitio si es necesario
+
+4. Correr proyecto
+
+- Para desarrollo
+
+```
+$~ npm run start:dev
+```
+
+- Para producción
+
+```
+ $~ npm run build
+ $~ npm run start:prod
+```
+
+## Documentación de Endpoints
+
+La documentación interactiva de todos los endpoints está disponible en **Swagger UI** una vez que el servidor esté corriendo:
+
+```
+http://localhost:3000/api/docs
+```
+
+Aquí se puede:
+- Ver todos los endpoints disponibles organizados por etiquetas (Auth y Sites)
+- Probar los endpoints directamente desde la UI
+- Autorizar con JWT para endpoints protegidos
+- Ver ejemplos de solicitudes y respuestas
+
+### Endpoints principales:
+
+**Autenticación:**
+- `POST /auth/register` - Registrar nuevo usuario
+- `POST /auth/login` - Iniciar sesión
+- `GET /auth/profile` - Obtener perfil del usuario (requiere JWT)
+- `GET /auth/check` - Verificar validez del token (requiere JWT)
+
+**Sitios:**
+- `POST /sites` - Crear nuevo sitio con imagen y contactos
+- `GET /sites` - Obtener todos los sitios del usuario
+- `GET /sites/:id` - Obtener sitio específico
+- `PATCH /sites/:id` - Actualizar sitio
+- `DELETE /sites/:id` - Eliminar sitio
+
 ## ¿Como funciona el backend?
 
-Este backend es de tipo API RestFul donde, sin contar la ruta de auth mantiene una solo ruta CRUD para sites, ahora explicare que proceso se realizo para la configuracion de esta base de datos:
+Este backend es de tipo API RestFul donde, mantiene una solo ruta CRUD para sites, ahora explicare que proceso se realizo para la configuracion de este backend:
 
 ### 1. Base de datos:
 
-Decidi usar el proveedor de base de datos SUPABASE, debido a su simplicidad en los procesos de creacion, su escalado, facilidad para interpretar datos e implementación interpretadores de base de datos eficientemente como son los ORMS.
+Decidi usar el proveedor de base de datos SUPABASE, debido a su simplicidad en los procesos de creacion, su escalado, facilidad para interpretar datos e implementación de interpretadores de base de datos eficientemente como son los ORMS.
 
 ### 2. Framework:
 
-Seleccioné NestJS porque proporciona una arquitectura modular y opinada, ideal para aplicaciones escalables y mantenibles. A diferencia de Express, NestJS ofrece una estructura clara basada en decoradores, inyección de dependencias y módulos, lo que facilita la legibilidad y escalabilidad del código. Además, incluye soporte integrado para TypeORM, validación de datos y documentación automática con Swagger, mejorando significativamente la productividad del desarrollo.
+Seleccioné NestJS porque proporciona una arquitectura modular y opinada, ideal para aplicaciones escalables y mantenibles, ademas de ser el que mas domino. A diferencia de Express, NestJS tiene una estructura clara basada en decoradores, inyección de dependencias y módulos, y esto facilita la legibilidad y escalabilidad del código. Además, incluye soporte integrado para TypeORM, validación de datos y documentación automática con Swagger, mejorando significativamente la productividad del desarrollo.
 
 ### 3. BUCKET S3 AWS:
 
-Usé AWS debido a que nunca he usado este cloud y queria aprender su usó, ademas de que es de lo mejores, si no el mejor, bucket de imagenes actualmente, para ello debi familiarizarme con algunos procesos y poder implementarlo, saber como usar el empaquetador official para javascript AWS SDK CLIENT S3 fue un reto para mi debido a que desconocia este empaquetador pero el aprendizaje fue util para conocer mejor este sistema cloud.
+Utilicé AWS porque nunca he usado este servicio en la nube y quería aprender su uso. Además, es uno de los mejores, si no el mejor, proveedor de almacenamiento de imágenes actualmente. Para ello, debí familiarizarme con algunos procesos para poder implementarlo y saber cómo usar el paquete oficial de AWS SDK Client S3 para JavaScript. Fue un reto para mí debido a que desconocía este paquete, pero el aprendizaje fue útil para conocer mejor este servicio en la nube.
 
 ### 4. Implementación:
 
-Para la implementación mi enfoque fue el sugerido por la prueba solo agregando un pequeño cambio, agrege un control de datos de los sitos por usuario, ¿Qué significa esto? que dependiendo del usuario los datos de site se mostraran como propios, ningún otro usuario podra ver los datos de otro.
-Para poder controlar estos necesité el id de usuario para acceder a sus datos exactos, la cual se proporciona con un Custom Decorator de nombre @GetUser() donde si no se pasa un dato especifico pasa todos los datos del usuario, en este caso el id.
-Para las operaciones con sitios, utilicé DTOs con validadores de class-validator para asegurar la integridad de los datos que llegan desde el cliente,
-En el servicio. Cada operación valida que el usuario sea propietario del recurso. Las entidades se modelaron con TypeORM, estableciendo relaciones entre usuarios, sitios y contactos. El manejo de errores utiliza excepciones de NestJS específicas: ConflictException para duplicados, NotFoundException para recursos no encontrados, y logs de error para fallos en S3, cuando se sube un archivo correctamente, cuando falla, cuando no se puede eliminar, cuando se elimina etc.
+Para la implementación, mi enfoque fue el sugerido por la prueba, solo agregando un pequeño cambio: añadí un control de datos de los sitios por usuario. ¿Qué significa esto? Que, dependiendo del usuario, los datos del sitio se mostrarán como propios; ningún otro usuario podrá ver los datos de otro.
+
+Para poder controlar esto, necesité el ID de usuario para acceder a sus datos exactos, el cual se proporciona con un decorador personalizado llamado `@GetUser()`. Si no se pasa un dato específico, se devuelven todos los datos del usuario, en este caso, el ID.
+
+Para las operaciones con sitios, utilicé DTOs con validadores de `class-validator` para asegurar la integridad de los datos que llegan desde el cliente. En el servicio, cada operación valida que el usuario sea propietario del recurso. Las entidades se modelaron con TypeORM, estableciendo relaciones entre usuarios, sitios y contactos. El manejo de errores utiliza excepciones específicas de NestJS: `ConflictException` para duplicados, `NotFoundException` para recursos no encontrados, y logs de error para fallos en S3, indicando cuándo se sube un archivo correctamente, cuándo falla, cuándo no se puede eliminar, y cuándo se elimina, etc.
 
 ## Despliegue
 
