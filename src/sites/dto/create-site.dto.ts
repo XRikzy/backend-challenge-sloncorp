@@ -1,4 +1,3 @@
-import { CreateContactDto } from '@/contacts/dto/create-contact.dto';
 import { Type } from 'class-transformer';
 import {
   IsArray,
@@ -9,6 +8,7 @@ import {
   MinLength,
   ValidateNested,
 } from 'class-validator';
+import { CreateContactDto } from './create-contact.dto';
 
 export class CreateSiteDto {
   @IsString()

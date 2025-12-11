@@ -5,7 +5,11 @@ import {
   Optional,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteBucketCommand,
+} from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import { logger as defaultLogger } from '@/utils/logger';
 @Injectable()
@@ -79,7 +83,28 @@ export class S3Service {
       throw new BadRequestException(`Failed to upload image: ${error}`);
     }
   }
-
+  async deleteImageFromS3(imageUrl: string): Promise<void> {
+    if (!imageUrl) {
+      return;
+    }
+    try {
+      const urlParts = imageUrl.split('.com/');
+      if (urlParts.length < 2) {
+        this.logger.warn(`Invalid S3 URL format: ${imageUrl}`);
+        return;
+      }
+      const s3Key = urlParts[1];
+      const params = {
+        Bucket: this.bucketName,
+        key: s3Key,
+      };
+      const command = new DeleteBucketCommand(params);
+      await this.s3.send(command);
+      this.logger.log(`Bucket ${this.bucketName} deleted successfully`);
+    } catch (error) {
+      this.logger.error(`Error deleting bucket ${this.bucketName} ${error}`);
+    }
+  }
   private validateFile(file: Express.Multer.File): void {
     if (!file) {
       throw new BadRequestException('No file provided');
