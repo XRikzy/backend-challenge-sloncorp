@@ -22,44 +22,44 @@
   <h1>Sites Management API - Backend (NestJS)</h1>
 </p>
 
-## Descripción
+## Description
 
-API RESTful completa para gestión de sitios con autenticación JWT, integración con Supabase PostgreSQL y AWS S3.
+Complete RESTful API for sites management with JWT authentication, Supabase PostgreSQL integration, and AWS S3.
 
-## Tecnologias
+## Technologies
 
-- NestJS - Framework backend de Node.js
-- TypeORM - ORM para PostgreSQL
-- Supabase - Base de datos PostgreSQL
-- AWS S3 - Almacenamiento de imágenes
-- JWT - Autenticación
-- bcrypt - Hashing de contraseñas
+- NestJS - Node.js backend framework
+- TypeORM - ORM for PostgreSQL
+- Supabase - PostgreSQL database
+- AWS S3 - Image storage
+- JWT - Authentication
+- bcrypt - Password hashing
 
-## Entorno y Servicios usados
+## Environment and Services Used
 
 - NodeJs (v22.12.5)
 - npm
 - AWS S3
-- Supabase (Cloud para base de datos tipo postgress)
+- Supabase (PostgreSQL cloud database)
 
-## Instalación del proyecto
+## Project Installation
 
-1. Clonar repositorio
+1. Clone the repository
 
 ```
 $~ git clone https://github.com/XRikzy/backend-challenge-sloncorp
 $~ cd backend-challenge-sloncorp
 ```
 
-2. Instalar dependecias
+2. Install dependencies
 
 ```
 $~ npm i
 ```
 
-3. Configurar variables de entorno
+3. Configure environment variables
 
-Crear archivo `.env` con las variables necesarias:
+Create a `.env` file with the necessary variables:
 
 ```
 PORT=3000
@@ -72,92 +72,93 @@ AWS_S3_SITES_FOLDER=sites/
 JWT_SECRET=jwt_secret
 JWT_EXPIRATION=86400
 ```
-Se proporcionará los env necearios para correr el sitio si es necesario
 
-4. Correr proyecto
+Required environment variables will be provided if needed.
 
-- Para desarrollo
+4. Run the project
+
+- For development
 
 ```
 $~ npm run start:dev
 ```
 
-- Para producción
+- For production
 
 ```
  $~ npm run build
  $~ npm run start:prod
 ```
 
-## Documentación de Endpoints
+## Endpoints Documentation
 
-La documentación interactiva de todos los endpoints está disponible en **Swagger UI** una vez que el servidor esté corriendo:
+The interactive documentation for all endpoints is available in **Swagger UI** once the server is running:
 
 ```
 http://localhost:3000/api/docs
 ```
 
-Aquí se puede:
-- Ver todos los endpoints disponibles organizados por etiquetas (Auth y Sites)
-- Probar los endpoints directamente desde la UI
-- Autorizar con JWT para endpoints protegidos
-- Ver ejemplos de solicitudes y respuestas
+Here you can:
+- View all available endpoints organized by tags (Auth and Sites)
+- Test endpoints directly from the UI
+- Authorize with JWT for protected endpoints
+- See examples of requests and responses
 
-### Endpoints principales:
+### Main endpoints:
 
-**Autenticación:**
-- `POST /auth/register` - Registrar nuevo usuario
-- `POST /auth/login` - Iniciar sesión
-- `GET /auth/profile` - Obtener perfil del usuario (requiere JWT)
-- `GET /auth/check` - Verificar validez del token (requiere JWT)
+**Authentication:**
+- `POST /auth/register` - Register new user
+- `POST /auth/login` - User login
+- `GET /auth/profile` - Get user profile (requires JWT)
+- `GET /auth/check` - Verify token validity (requires JWT)
 
-**Sitios:**
-- `POST /sites` - Crear nuevo sitio con imagen y contactos
-- `GET /sites` - Obtener todos los sitios del usuario
-- `GET /sites/:id` - Obtener sitio específico
-- `PATCH /sites/:id` - Actualizar sitio
-- `DELETE /sites/:id` - Eliminar sitio
+**Sites:**
+- `POST /sites` - Create new site with image and contacts
+- `GET /sites` - Get all user sites
+- `GET /sites/:id` - Get specific site
+- `PATCH /sites/:id` - Update site
+- `DELETE /sites/:id` - Delete site
 
-## ¿Como funciona el backend?
+## How the Backend Works
 
-Este backend es de tipo API RestFul donde, mantiene una solo ruta CRUD para sites, ahora explicare que proceso se realizo para la configuracion de este backend:
+This backend is a RESTful API that maintains a single CRUD route for sites. Below I explain the process used for configuring this backend:
 
-### 1. Base de datos:
+### 1. Database:
 
-Decidi usar el proveedor de base de datos SUPABASE, debido a su simplicidad en los procesos de creacion, su escalado, facilidad para interpretar datos e implementación de interpretadores de base de datos eficientemente como son los ORMS.
+I decided to use the Supabase database provider due to its simplicity in creation processes, scalability, ease of data interpretation, and efficient implementation of database interpreters like ORMs.
 
 ### 2. Framework:
 
-Seleccioné NestJS porque proporciona una arquitectura modular y opinada, ideal para aplicaciones escalables y mantenibles, ademas de ser el que mas domino. A diferencia de Express, NestJS tiene una estructura clara basada en decoradores, inyección de dependencias y módulos, y esto facilita la legibilidad y escalabilidad del código. Además, incluye soporte integrado para TypeORM, validación de datos y documentación automática con Swagger, mejorando significativamente la productividad del desarrollo.
+I chose NestJS because it provides a modular and opinionated architecture, ideal for scalable and maintainable applications. Unlike Express, NestJS has a clear structure based on decorators, dependency injection, and modules, which facilitates code readability and scalability. Additionally, it includes built-in support for TypeORM, data validation, and automatic documentation with Swagger, significantly improving development productivity.
 
-### 3. BUCKET S3 AWS:
+### 3. AWS S3 Bucket:
 
-Utilicé AWS porque nunca he usado este servicio en la nube y quería aprender su uso. Además, es uno de los mejores, si no el mejor, proveedor de almacenamiento de imágenes actualmente. Para ello, debí familiarizarme con algunos procesos para poder implementarlo y saber cómo usar el paquete oficial de AWS SDK Client S3 para JavaScript. Fue un reto para mí debido a que desconocía este paquete, pero el aprendizaje fue útil para conocer mejor este servicio en la nube.
+I used AWS because I had never used this cloud service before and wanted to learn how to use it. Additionally, it is one of the best, if not the best, image storage providers available. To do this, I had to familiarize myself with some processes to implement it and learn how to use the official AWS SDK Client S3 package for JavaScript. It was a challenge for me because I was unfamiliar with this package, but the learning experience was useful for better understanding this cloud service.
 
-### 4. Implementación:
+### 4. Implementation:
 
-Para la implementación, mi enfoque fue el sugerido por la prueba, solo agregando un pequeño cambio: añadí un control de datos de los sitios por usuario. ¿Qué significa esto? Que, dependiendo del usuario, los datos del sitio se mostrarán como propios; ningún otro usuario podrá ver los datos de otro.
+For the implementation, my approach followed the suggested guidelines, with one small addition: I added user-based data control for sites. What does this mean? Depending on the user, site data will be displayed as their own; no other user can see another user's data.
 
-Para poder controlar esto, necesité el ID de usuario para acceder a sus datos exactos, el cual se proporciona con un decorador personalizado llamado `@GetUser()`. Si no se pasa un dato específico, se devuelven todos los datos del usuario, en este caso, el ID.
+To control this, I needed the user ID to access their exact data, which is provided by a custom decorator called `@GetUser()`. If no specific data is passed, all user data is returned, in this case, the ID.
 
-Para las operaciones con sitios, utilicé DTOs con validadores de `class-validator` para asegurar la integridad de los datos que llegan desde el cliente. En el servicio, cada operación valida que el usuario sea propietario del recurso. Las entidades se modelaron con TypeORM, estableciendo relaciones entre usuarios, sitios y contactos. El manejo de errores utiliza excepciones específicas de NestJS: `ConflictException` para duplicados, `NotFoundException` para recursos no encontrados, y logs de error para fallos en S3, indicando cuándo se sube un archivo correctamente, cuándo falla, cuándo no se puede eliminar, y cuándo se elimina, etc.
+For site operations, I used DTOs with `class-validator` validators to ensure data integrity from the client. In the service, each operation validates that the user is the owner of the resource. Entities were modeled with TypeORM, establishing relationships between users, sites, and contacts. Error handling uses specific NestJS exceptions: `ConflictException` for duplicates, `NotFoundException` for missing resources, and error logs for S3 failures, indicating when a file is uploaded successfully, when it fails, when it cannot be deleted, and when it is deleted, etc.
 
-## Despliegue
+## Deployment
 
-Este proyecto está configurado para hacer deploy en **Vercel**.
+This project is configured to deploy on **Render**.
 
-**Pasos realizados:**
-1. Conecté el repositorio GitHub a Vercel
-2. Agregue variables de entorno en Vercel
-3. Hice push a mi rama principal (master)
-4. Vercel automáticamente compilará y deployará
+**Steps taken:**
+1. Connected the GitHub repository to Render
+2. Added environment variables in Render
+3. Pushed to the main branch (master)
+4. Render automatically builds and deploys
 
 ## Resources
 
-- NestJs [NestJs Documentación](https://docs.nestjs.com/)
-- AWS SDK [AWS SDK JAVACRIPT](https://docs.aws.amazon.com/sdk-for-javascript/)
-- Supabase [Supabase Documentación](https://supabase.com/docs/guides/database/overview)
-- Vercel [Vercel Documentación](https://vercel.com/docs)
+- NestJs [NestJs Documentation](https://docs.nestjs.com/)
+- AWS SDK [AWS SDK JAVASCRIPT](https://docs.aws.amazon.com/sdk-for-javascript/)
+- Supabase [Supabase Documentation](https://supabase.com/docs/guides/database/overview)
+- Vercel [Vercel Documentation](https://vercel.com/docs)
 
 ## License
 

@@ -11,6 +11,7 @@ import { Repository } from 'typeorm';
 import { Contact } from './entities/contacts.entity';
 import { S3Service } from '@/s3/s3.service';
 import { logger } from '@/utils/logger';
+import { MESSAGE_SITES } from '@/utils/message/messages';
 
 @Injectable()
 export class SitesService {
@@ -63,7 +64,7 @@ export class SitesService {
     });
     return {
       success: true,
-      message: 'Site created Succeessfully',
+      message: MESSAGE_SITES.CREATE,
       data: completeSite,
     };
   }
@@ -91,6 +92,7 @@ export class SitesService {
     }
     return {
       succces: true,
+      message: MESSAGE_SITES.FIND,
       data: site,
     };
   }
@@ -141,7 +143,7 @@ export class SitesService {
     });
     return {
       success: true,
-      message: 'Site updated Succesfully',
+      message: MESSAGE_SITES.UPDATE,
       data: updateSite,
     };
   }
@@ -164,7 +166,7 @@ export class SitesService {
 
     return {
       success: true,
-      message: 'Site deleted succesfully',
+      message: MESSAGE_SITES.DELETE,
     };
   }
 }
