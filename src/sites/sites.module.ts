@@ -3,14 +3,18 @@ import { MulterModule } from '@nestjs/platform-express';
 import { SitesService } from './sites.service';
 import { SitesController } from './sites.controller';
 import { S3Module } from '@/s3/s3.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Site } from './entities/site.entity';
+import { Contact } from './entities/contacts.entity';
 
 @Module({
   imports: [
     S3Module,
+    TypeOrmModule.forFeature([Site, Contact]),
     MulterModule.register({
-      storage: undefined, // Multer en memoria
+      storage: undefined,
       limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB
+        fileSize: 5 * 1024 * 1024,
       },
       fileFilter: (req, file, cb) => {
         const allowedMimes = [

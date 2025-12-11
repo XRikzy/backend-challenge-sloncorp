@@ -1,26 +1,170 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Site } from './entities/site.entity';
+import { Repository } from 'typeorm';
+import { Contact } from './entities/contacts.entity';
+import { S3Service } from '@/s3/s3.service';
+import { logger } from '@/utils/logger';
 
 @Injectable()
 export class SitesService {
-  create(createSiteDto: CreateSiteDto) {
-    return 'This action adds a new site';
+  constructor(
+    @InjectRepository(Site)
+    private siteRepository: Repository<Site>,
+    @InjectRepository(Contact)
+    private contactRepository: Repository<Contact>,
+    private s3Services: S3Service,
+  ) {}
+  async create(
+    createSiteDto: CreateSiteDto,
+    userId: string,
+    imageFile: Express.Multer.File,
+  ) {
+    let imageUrl: string | undefined;
+    if (imageFile) {
+      imageUrl = await this.s3Services.uploadImageToS3(imageFile);
+    }
+    const { id, name, address, contacts } = createSiteDto;
+    const existingSite = await this.siteRepository.findOne({
+      where: { user_id: userId, id: id },
+    });
+    if (existingSite) {
+      if (imageUrl) {
+        await this.s3Services.deleteImageFromS3(imageUrl);
+      }
+      throw new ConflictException(`Already exists this site with name ${name}`);
+    }
+    const newSite = this.siteRepository.create({
+      id,
+      name,
+      image: imageUrl,
+      address,
+      user_id: userId,
+    });
+    await this.siteRepository.save(newSite);
+    if (contacts && contacts?.length > 0) {
+      const contactsEntities = contacts.map((contact) => {
+        return this.contactRepository.create({
+          ...contact,
+          site_id: newSite.id,
+        });
+      });
+      await this.contactRepository.save(contactsEntities);
+    }
+    const completeSite = await this.siteRepository.find({
+      where: { id: newSite.id },
+      relations: ['contacts'],
+    });
+    return {
+      success: true,
+      message: 'Site created Succeessfully',
+      data: completeSite,
+    };
   }
 
-  findAll() {
-    return `This action returns all sites`;
+  async findAll(userId: string) {
+    const sites = await this.siteRepository.find({
+      where: { user_id: userId },
+      relations: ['contacts'],
+      order: { id: 'ASC' },
+    });
+    return {
+      success: true,
+      sites,
+      count: sites.length,
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} site`;
+  async findOne(siteid: string, userId: string) {
+    const site = await this.siteRepository.findOne({
+      where: { id: siteid, user_id: userId },
+      relations: ['contacts'],
+    });
+    if (!site) {
+      throw new NotFoundException(`site with ID ${siteid} not found`);
+    }
+    return {
+      succces: true,
+      data: site,
+    };
   }
 
-  update(id: number, updateSiteDto: UpdateSiteDto) {
-    return `This action updates a #${id} site`;
+  async update(
+    siteId: string,
+    updateSiteDto: UpdateSiteDto,
+    userId: string,
+    imageFile: Express.Multer.File,
+  ) {
+    const site = await this.siteRepository.findOne({
+      where: { id: siteId, user_id: userId },
+      relations: ['contacts'],
+    });
+    if (!site) {
+      throw new NotFoundException(`Site with ID ${siteId} not found`);
+    }
+    const { contacts, ...siteData } = updateSiteDto;
+    if (imageFile) {
+      if (site.image) {
+        try {
+          await this.s3Services.deleteImageFromS3(site.image);
+        } catch (error) {
+          logger.error(`Failed to delete old image from S3 bucket ${error}`);
+        }
+      }
+      const newImageUrl = await this.s3Services.uploadImageToS3(imageFile);
+      siteData.image = newImageUrl;
+    }
+
+    Object.assign(site, siteData);
+    await this.siteRepository.save(site);
+    if (contacts) {
+      await this.contactRepository.delete({ site_id: siteId });
+    }
+    if (contacts && contacts.length > 0) {
+      const contactEntities = contacts.map((contact) => {
+        return this.contactRepository.create({
+          ...contact,
+          site_id: siteId,
+        });
+      });
+      await this.contactRepository.save(contactEntities);
+    }
+    const updateSite = await this.siteRepository.findOne({
+      where: { id: siteId },
+      relations: ['contacts'],
+    });
+    return {
+      success: true,
+      message: 'Site updated Succesfully',
+      data: updateSite,
+    };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} site`;
+  async remove(siteId: string, userId: string) {
+    const site = await this.siteRepository.findOne({
+      where: { id: siteId, user_id: userId },
+    });
+    if (!site) {
+      throw new NotFoundException(`Site with ID ${siteId} not found`);
+    }
+    if (site.image) {
+      try {
+        await this.s3Services.deleteImageFromS3(site.image);
+      } catch (error) {
+        logger.error(`Failed to delete image from S3 bucket ${error}`);
+      }
+    }
+    await this.siteRepository.remove(site);
+
+    return {
+      success: true,
+      message: 'Site deleted succesfully',
+    };
   }
 }
