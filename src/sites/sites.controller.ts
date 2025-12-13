@@ -90,11 +90,6 @@ export class SitesController {
     @GetUser() user: User,
     @UploadedFile() imageFile: Express.Multer.File,
   ) {
-    if (typeof createSiteDto.contacts === 'string') {
-      createSiteDto.contacts = JSON.parse(
-        createSiteDto.contacts,
-      ) as CreateSiteDto['contacts'];
-    }
     return this.sitesService.create(createSiteDto, user.id, imageFile);
   }
 
@@ -172,32 +167,6 @@ export class SitesController {
   async findOne(@Param('id') id: string, @GetUser() user: User) {
     return this.sitesService.findOne(id, user.id);
   }
-  @Get('next-id')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Get NextID',
-    description: 'Get Nextid for generate new ID for create SITES',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Next ID getting',
-    schema: {
-      example: {
-        succces: true,
-        data: {
-          nextId: '0005',
-        },
-      },
-    },
-  })
-  @ApiResponse({ status: 404, description: 'Sitio no encontrado' })
-  async getNextId(@GetUser() user: User) {
-    const nextId = await this.sitesService.generateNextSiteId(user.id);
-    return {
-      success: true,
-      data: { nextId },
-    };
-  }
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('image'))
@@ -238,11 +207,6 @@ export class SitesController {
     @GetUser() user: User,
     @UploadedFile() imageFile: Express.Multer.File,
   ) {
-    if (typeof updateSiteDto.contacts === 'string') {
-      updateSiteDto.contacts = JSON.parse(
-        updateSiteDto.contacts,
-      ) as UpdateSiteDto['contacts'];
-    }
     return this.sitesService.update(id, updateSiteDto, user.id, imageFile);
   }
 
