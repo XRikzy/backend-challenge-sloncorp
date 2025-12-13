@@ -96,7 +96,7 @@ export class SitesService {
     const { contacts, ...siteData } = updateSiteDto;
 
     Object.assign(site, siteData);
-    if (site.image) {
+    if (!site.image) {
       try {
         await this.s3Services.deleteImageFromS3(site.image);
       } catch (error) {
