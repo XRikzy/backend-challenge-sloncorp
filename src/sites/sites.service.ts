@@ -57,19 +57,6 @@ export class SitesService {
       data: completeSite,
     };
   }
-  async uploadImage(imageFile: Express.Multer.File) {
-    let imageUrl: string | undefined;
-    if (imageFile) {
-      imageUrl = await this.s3Services.uploadImageToS3(imageFile);
-    }
-    if (!imageUrl) {
-      throw new Error(`No se puso subir la imagen proporcionada`);
-    }
-    return {
-      succes: true,
-      imageUrl,
-    };
-  }
   async findAll(userId: string) {
     const sites = await this.siteRepository.find({
       where: { user_id: userId },
@@ -109,6 +96,13 @@ export class SitesService {
     const { contacts, ...siteData } = updateSiteDto;
 
     Object.assign(site, siteData);
+    if (site.image) {
+      try {
+        await this.s3Services.deleteImageFromS3(site.image);
+      } catch (error) {
+        logger.error(`Failed to delete image from S3 bucket ${error}`);
+      }
+    }
     await this.siteRepository.save(site);
     if (contacts) {
       await this.contactRepository.delete({ site_id: siteId });
