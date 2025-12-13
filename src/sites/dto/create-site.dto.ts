@@ -1,4 +1,4 @@
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 import {
   IsArray,
   IsNotEmpty,
@@ -54,10 +54,9 @@ export class CreateSiteDto {
 
   @ApiProperty({
     type: 'string',
-    format: 'binary',
-    description: 'Imagen del sitio (JPEG, PNG, WebP máx 5MB) (opcional)',
+    description: 'ImageURL',
     required: false,
   })
   @IsOptional()
-  image?: Express.Multer.File | string;
+  image?: string;
 }

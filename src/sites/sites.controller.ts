@@ -85,12 +85,8 @@ export class SitesController {
   })
   @ApiResponse({ status: 400, description: 'Datos inválidos' })
   @ApiResponse({ status: 409, description: 'El sitio ya existe' })
-  async create(
-    @Body() createSiteDto: CreateSiteDto,
-    @GetUser() user: User,
-    @UploadedFile() imageFile: Express.Multer.File,
-  ) {
-    return this.sitesService.create(createSiteDto, user.id, imageFile);
+  async create(@Body() createSiteDto: CreateSiteDto, @GetUser() user: User) {
+    return this.sitesService.create(createSiteDto, user.id);
   }
 
   @Get()

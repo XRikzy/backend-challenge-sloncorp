@@ -22,29 +22,18 @@ export class SitesService {
     private contactRepository: Repository<Contact>,
     private s3Services: S3Service,
   ) {}
-  async create(
-    createSiteDto: CreateSiteDto,
-    userId: string,
-    imageFile: Express.Multer.File,
-  ) {
-    let imageUrl: string | undefined;
-    if (imageFile) {
-      imageUrl = await this.s3Services.uploadImageToS3(imageFile);
-    }
-    const { id, name, address, contacts } = createSiteDto;
+  async create(createSiteDto: CreateSiteDto, userId: string) {
+    const { id, name, image, address, contacts } = createSiteDto;
     const existingSite = await this.siteRepository.findOne({
       where: { user_id: userId, id: id },
     });
     if (existingSite) {
-      if (imageUrl) {
-        await this.s3Services.deleteImageFromS3(imageUrl);
-      }
       throw new ConflictException(`Already exists this site with name ${name}`);
     }
     const newSite = this.siteRepository.create({
       id,
       name,
-      image: imageUrl,
+      image,
       address,
       user_id: userId,
     });
@@ -68,7 +57,19 @@ export class SitesService {
       data: completeSite,
     };
   }
-
+  async uploadImage(imageFile: Express.Multer.File) {
+    let imageUrl: string | undefined;
+    if (imageFile) {
+      imageUrl = await this.s3Services.uploadImageToS3(imageFile);
+    }
+    if (!imageUrl) {
+      throw new Error(`No se puso subir la imagen proporcionada`);
+    }
+    return {
+      succes: true,
+      imageUrl,
+    };
+  }
   async findAll(userId: string) {
     const sites = await this.siteRepository.find({
       where: { user_id: userId },

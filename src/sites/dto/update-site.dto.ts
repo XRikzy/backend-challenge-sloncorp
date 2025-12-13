@@ -1,7 +1,15 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateSiteDto } from './create-site.dto';
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsOptional,
+  IsString,
+  MaxLength,
+  ValidateNested,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { CreateContactDto } from './create-contact.dto';
 
 export class UpdateSiteDto extends PartialType(CreateSiteDto) {
   @ApiProperty({
@@ -12,4 +20,22 @@ export class UpdateSiteDto extends PartialType(CreateSiteDto) {
   @IsString()
   @IsOptional()
   id?: string;
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  address?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateContactDto)
+  contacts?: CreateContactDto[];
+
+  @IsOptional()
+  @IsString()
+  image?: string;
 }
