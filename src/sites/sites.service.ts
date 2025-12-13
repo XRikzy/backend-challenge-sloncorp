@@ -98,12 +98,7 @@ export class SitesService {
     };
   }
 
-  async update(
-    siteId: string,
-    updateSiteDto: UpdateSiteDto,
-    userId: string,
-    imageFile: Express.Multer.File,
-  ) {
+  async update(siteId: string, updateSiteDto: UpdateSiteDto, userId: string) {
     const site = await this.siteRepository.findOne({
       where: { id: siteId, user_id: userId },
       relations: ['contacts'],
@@ -112,17 +107,6 @@ export class SitesService {
       throw new NotFoundException(`Site with ID ${siteId} not found`);
     }
     const { contacts, ...siteData } = updateSiteDto;
-    if (imageFile) {
-      if (site.image) {
-        try {
-          await this.s3Services.deleteImageFromS3(site.image);
-        } catch (error) {
-          logger.error(`Failed to delete old image from S3 bucket ${error}`);
-        }
-      }
-      const newImageUrl = await this.s3Services.uploadImageToS3(imageFile);
-      siteData.image = newImageUrl;
-    }
 
     Object.assign(site, siteData);
     await this.siteRepository.save(site);

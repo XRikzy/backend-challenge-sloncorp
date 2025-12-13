@@ -9,8 +9,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  UseInterceptors,
-  UploadedFile,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -19,9 +17,7 @@ import {
   ApiBody,
   ApiBearerAuth,
   ApiParam,
-  ApiConsumes,
 } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { SitesService } from './sites.service';
 import { CreateSiteDto } from './dto/create-site.dto';
 import { UpdateSiteDto } from './dto/update-site.dto';
@@ -38,8 +34,6 @@ export class SitesController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FileInterceptor('image'))
-  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Crear nuevo sitio',
     description:
@@ -165,8 +159,6 @@ export class SitesController {
   }
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  @UseInterceptors(FileInterceptor('image'))
-  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Actualizar sitio',
     description:
@@ -183,7 +175,7 @@ export class SitesController {
       properties: {
         name: { type: 'string', example: 'Sitio Actualizado' },
         address: { type: 'string', example: 'Nueva Dirección 456' },
-        image: { type: 'string', format: 'binary' },
+        image: { type: 'string' },
         contacts: {
           type: 'string',
           example:
@@ -201,9 +193,8 @@ export class SitesController {
     @Param('id') id: string,
     @Body() updateSiteDto: UpdateSiteDto,
     @GetUser() user: User,
-    @UploadedFile() imageFile: Express.Multer.File,
   ) {
-    return this.sitesService.update(id, updateSiteDto, user.id, imageFile);
+    return this.sitesService.update(id, updateSiteDto, user.id);
   }
 
   @Delete(':id')
