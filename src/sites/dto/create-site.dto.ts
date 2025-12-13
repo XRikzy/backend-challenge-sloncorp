@@ -46,18 +46,6 @@ export class CreateSiteDto {
     description: 'Lista de contactos asociados al sitio (opcional)',
     required: false,
   })
-  @Transform(({ value }) => {
-    if (!value) return [];
-    if (typeof value === 'string') {
-      try {
-        const parsed = JSON.parse(value);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (e) {
-        return [];
-      }
-    }
-    return Array.isArray(value) ? value : [];
-  })
   @IsArray()
   @IsOptional()
   @ValidateNested({ each: true })
