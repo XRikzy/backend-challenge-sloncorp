@@ -169,4 +169,19 @@ export class SitesService {
       message: MESSAGE_SITES.DELETE,
     };
   }
+  async generateNextSiteId(userId: string): Promise<string> {
+    const sites = await this.siteRepository.find({
+      where: { user_id: userId },
+      order: { id: 'DESC' },
+      take: 1,
+    });
+
+    if (sites.length === 0) {
+      return '0001';
+    }
+
+    const lastId = sites[0].id;
+    const nextNumber = parseInt(lastId) + 1;
+    return nextNumber.toString().padStart(4, '0');
+  }
 }
